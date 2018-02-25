@@ -1,0 +1,266 @@
+public class CalculadorImpuestos {
+
+	public double calcularPago(String Marca, String Linea, String Modelo, boolean ProntoPago, boolean ServicioPublico, boolean TrasladoCuenta) {
+		return 0;
+	}
+
+	public double buscarAvaluoVehiculo(String Marca, String Linea, String Modelo) {
+		return 0;
+	}
+  
+  
+  
+  
+  
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
+public class InterfazImpuestosCarro extends JFrame {
+	private CalculadorImpuestos calculador;
+	
+	private PanelVehiculo panelV;
+	private PanelDescuentos panelD;
+	private PanelResultados panelR;
+	
+	public InterfazImpuestosCarro() throws Exception {
+		calculador = new CalculadorImpuestos();
+		
+		setTitle("Calculo impuestos");
+		setSize(290,300);
+		setResizable(false);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		setLayout (new BorderLayout());
+		
+		panelV = new PanelVehiculo(null);
+		add(panelV, BorderLayout.NORTH);
+		
+		panelD = new PanelDescuentos();
+		add(panelD, BorderLayout.CENTER);
+		
+		panelR = new PanelResultados(null);
+		add(panelR, BorderLayout.SOUTH);
+	}
+	
+	public class PanelVehiculo extends JPanel implements ActionListener{
+		private JTextField txtM;
+		private JTextField txtL;
+		private JTextField txtMo;
+		private JTextField txtV;
+		private JLabel etiquetaM;
+		private JLabel etiquetaL;
+		private JLabel etiquetaMo;
+		private JLabel etiquetaV;
+		
+		private JLabel txtNada;
+		private JButton butBuscar;
+		public final static String BUSCAR = "buscar";
+		
+		private InterfazImpuestosCarro principal;
+		
+		public PanelVehiculo(InterfazImpuestosCarro v) {
+			principal = v;
+			
+			setLayout(new GridLayout(5,2));
+			setPreferredSize(new Dimension(0,130));
+			TitledBorder border = BorderFactory.createTitledBorder("Datos del vehiculo");
+			border.setTitleColor(Color.BLUE);
+			setBorder(border);
+			
+			etiquetaM = new JLabel("Marca");
+			etiquetaL = new JLabel("Linea");
+			etiquetaMo = new JLabel("Modelo");
+			etiquetaV = new JLabel("Valor");
+			txtM = new JTextField();
+			txtL = new JTextField();
+			txtMo = new JTextField();
+			txtV = new JTextField("$ 0");
+			txtV.setEditable(false);
+			txtV.setForeground(Color.BLUE);
+			txtV.setBackground(Color.WHITE);
+			txtNada = new JLabel("");
+			butBuscar = new JButton("Buscar");
+			
+			add(etiquetaM);
+			add(txtM);
+			add(etiquetaL);
+			add(txtL);
+			add(etiquetaMo);
+			add(txtMo);
+			add(etiquetaV);
+			add(txtV);	
+			add(txtNada);
+			add(butBuscar);
+			
+			butBuscar.setActionCommand(BUSCAR);
+			butBuscar.addActionListener(this);
+			
+			try {
+				String strModelo = txtMo.getText();
+				int nModelo = Integer.parseInt(strModelo);
+			}
+			catch(Exception e) {
+				txtMo.setText("");
+			}
+		}
+		
+		public void refrescarPrecio(double precio) {
+			DecimalFormat df = (DecimalFormat)NumberFormat.getInstance();
+			df.applyPattern("$ ###,###.##");
+			txtV.setText(df.format(precio));
+		}
+		
+		public String darMarca() {
+			return txtM.getText();
+			}
+		
+		public String darLinea() {
+			return txtL.getText();
+		}
+		
+		public String darModelo() {
+			return txtMo.getText();
+		}
+		
+		public void calcularPrecioVehiculo() {
+			String Marca = panelV.darMarca();
+			String Linea = panelV.darLinea();
+			String Modelo = panelV.darModelo();
+			
+			double precio = calculador.buscarAvaluoVehiculo(Marca,Linea,Modelo);
+			
+			panelV.refrescarPrecio(precio);
+		}
+		
+		public void calcularImpuestos() {
+			String Marca = panelV.darMarca();
+			String Linea = panelV.darLinea();
+			String Modelo = panelV.darModelo();
+			
+			boolean descProntoPago = panelD.hayDescuentoProntoPago();
+			boolean descServicioPublico = panelD.hayDescuentoServicioPublico();
+			boolean descTrasladoCuenta = panelD.hayDescuentoTrasladoCuenta();
+			
+			double pago = calculador.calcularPago(Marca,Linea,Modelo,descProntoPago,descServicioPublico,descTrasladoCuenta);
+			
+			panelR.refrescarPago(pago);
+		}
+
+		public void actionPerformed(ActionEvent evento) {
+			String comando = evento.getActionCommand();
+			
+			if(comando.equals(BUSCAR)) {
+				JOptionPane.showMessageDialog(this, "Busqueda completada", "Calculo de Impuestos", JOptionPane.INFORMATION_MESSAGE);
+			}	
+		}
+	}
+	
+	public class PanelDescuentos extends JPanel{
+		private JCheckBox cbPPago;
+		private JCheckBox cbSPublico;
+		private JCheckBox cbTCuenta;
+		
+		public PanelDescuentos() {
+			setLayout(new GridLayout(2,2));
+			TitledBorder border = BorderFactory.createTitledBorder("Descuentos");
+			border.setTitleColor(Color.BLUE);
+			setBorder(border);
+			
+			cbPPago = new JCheckBox("Pronto pago");
+			cbSPublico = new JCheckBox("Servicio público");
+			cbTCuenta = new JCheckBox("Traslado de cuenta");
+			
+			add(cbPPago);
+			add(cbTCuenta);
+			add(cbSPublico);
+		}
+
+		public boolean hayDescuentoTrasladoCuenta() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean hayDescuentoServicioPublico() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean hayDescuentoProntoPago() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
+	
+	public class PanelResultados extends JPanel implements ActionListener{
+		private JLabel labTotal;
+		private JTextField txtTotal;
+		private JButton butLimpiar;
+		private JButton butCalcular;
+		
+		public final static String LIMPIAR = "limpiar";
+		public final static String CALCULAR = "calcular";
+		
+		private InterfazImpuestosCarro principal;
+		
+		public PanelResultados(InterfazImpuestosCarro v) {
+			principal = v;
+			
+			setLayout(new GridLayout(2,3));
+			setPreferredSize(new Dimension(0,65));
+			TitledBorder border = BorderFactory.createTitledBorder("Resultados");
+			border.setTitleColor(Color.WHITE);
+			setBorder(border);
+			
+			labTotal = new JLabel("Total a pagar");
+			txtTotal = new JTextField("$ 0");
+			butLimpiar = new JButton("Limpiar");
+			butCalcular = new JButton("Calcular");
+			
+			txtTotal.setEditable(false);
+			txtTotal.setForeground(Color.GREEN);
+			txtTotal.setBackground(Color.WHITE);
+			
+			add(new JLabel(""));
+			add(new JLabel(""));
+			add(butLimpiar);
+			add(labTotal);
+			add(txtTotal);
+			add(butCalcular);
+			
+			butLimpiar.setActionCommand(LIMPIAR);
+			butCalcular.setActionCommand(CALCULAR);
+			
+			butLimpiar.addActionListener(this);
+			butCalcular.addActionListener(this);
+		}
+		
+		public void refrescarPago(double pago) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void actionPerformed(ActionEvent evento) {
+			String comando = evento.getActionCommand();
+			
+			if(comando.equals(LIMPIAR)) {
+				JOptionPane.showMessageDialog(this, "Limpiado completado", "Calculo de Impuestos", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else if(comando.equals(CALCULAR)) {
+				JOptionPane.showMessageDialog(this, "Calculo completado", "Calculo de Impuestos", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		InterfazImpuestosCarro vent = new InterfazImpuestosCarro();
+		
+		vent.setVisible(true);
+	}
+}
+
